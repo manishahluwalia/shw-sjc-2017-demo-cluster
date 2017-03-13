@@ -1,0 +1,138 @@
+version: "3"
+
+services:
+  db:
+    hostname: db
+    domainname: cluster
+    image: fakepseudonym/cloudera-base-db:latest
+    networks:
+      internal:
+        ipv4_address: 172.20.0.10
+    dns: 172.20.0.11
+    volumes:
+      - ./mysqld-data-dir:/var/lib/mysql
+      - ./etc-resolv.conf:/etc/resolv.conf
+      - ./etc-krb5.conf:/etc/krb5.conf
+      - ${HOME}:${HOME}
+
+  dns:
+    image: andyshinn/dnsmasq:2.75
+    hostname: dns
+    domainname: cluster
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+    networks:
+      internal:
+        ipv4_address: 172.20.0.11
+    volumes:
+      - ./etc-hosts:/etc/hosts
+      - ./etc-krb5.conf:/etc/krb5.conf
+      - ${HOME}:${HOME}
+
+  kdc:
+    image: fakepseudonym/cloudera-insec-kdc:latest
+    hostname: kdc
+    domainname: cluster
+    privileged: true
+    networks:
+      internal:
+        ipv4_address: 172.20.0.12
+    dns: 172.20.0.11
+    volumes:
+      - ./etc-resolv.conf:/etc/resolv.conf
+      - ./etc-krb5.conf:/etc/krb5.conf
+      - ${HOME}:${HOME}
+
+  cm:
+    depends_on:
+      - db
+    hostname: cm
+    domainname: cluster
+    image: fakepseudonym/cloudera-insec-cm:latest
+    privileged: true
+    networks:
+      internal:
+        ipv4_address: 172.20.0.20
+    dns: 172.20.0.11
+    ports:
+      - "0.0.0.0:7180:7180"
+      - "0.0.0.0:7183:7183"
+    volumes:
+      - ./etc-resolv.conf:/etc/resolv.conf
+      - ./etc-krb5.conf:/etc/krb5.conf
+      - ${HOME}:${HOME}
+
+  worker1:
+    depends_on:
+      - cm
+    image: fakepseudonym/cloudera-insec-worker1:latest
+    hostname: worker1
+    domainname: cluster
+    privileged: true
+    networks:
+      internal:
+        ipv4_address: 172.20.0.30
+    dns: 172.20.0.11
+    volumes:
+      - ./etc-resolv.conf:/etc/resolv.conf
+      - ./etc-krb5.conf:/etc/krb5.conf
+      - ${HOME}:${HOME}
+  
+  worker2:
+    depends_on:
+      - cm
+    image: fakepseudonym/cloudera-insec-worker2:latest
+    hostname: worker2
+    domainname: cluster
+    privileged: true
+    networks:
+      internal:
+        ipv4_address: 172.20.0.31
+    dns: 172.20.0.11
+    volumes:
+      - ./etc-resolv.conf:/etc/resolv.conf
+      - ./etc-krb5.conf:/etc/krb5.conf
+      - ${HOME}:${HOME}
+
+  master1:
+    depends_on:
+      - cm
+    image: fakepseudonym/cloudera-insec-master1:latest
+    hostname: master1 
+    domainname: cluster
+    privileged: true
+    networks:
+      internal:
+        ipv4_address: 172.20.0.40
+    dns: 172.20.0.11
+    volumes:
+      - ./etc-resolv.conf:/etc/resolv.conf
+      - ./etc-krb5.conf:/etc/krb5.conf
+      - ${HOME}:${HOME}
+
+  gateway1:
+    depends_on:
+      - cm
+    image: fakepseudonym/cloudera-insec-gateway1:latest
+    hostname: gateway1
+    domainname: cluster
+    privileged: true
+    networks:
+      internal:
+        ipv4_address: 172.20.0.50
+    dns: 172.20.0.11
+    ports:
+      - "0.0.0.0:10000:10000"
+      - "0.0.0.0:8888:8888"
+    volumes:
+      - ./etc-resolv.conf:/etc/resolv.conf
+      - ./etc-krb5.conf:/etc/krb5.conf
+      - ${HOME}:${HOME}
+
+networks:
+  internal:
+    driver: bridge
+    ipam:
+      config:
+      - subnet: 172.20.0.0/16
