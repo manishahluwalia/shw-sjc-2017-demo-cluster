@@ -2,7 +2,7 @@ This setup contains 2 docker clusters with Cloudera Manager setup in it. One is 
 
 This is NOT meant to be used in production of any kind. This is NOT meant to serve as a reference-architecture. It is merely meant as a toy setup for you to play along with the Strata Hadoop World talk on 'How to secure your Apache Hadoop Cluster'
 
-To use this, first setup a machine with a large amount of RAM and a good number of cores. I have gotten good results with 60GB/16cores. You may try smaller if you like, but don't go too small -- your're runnig a full cluster on your box. Obviously, make sure you can reach this box via TCP (arbitrary ports) using any mechanism (via VPN, ssh tunneling, etc.). If you're up for it, get _two_ such boxes up: one for running the insecure cluster and one for the secure cluster. (You can't run both clusters as the same time as currently written)
+To use this, first setup a machine with a large amount of RAM and a good number of cores. I have gotten good results with 60GB/16cores. You may try smaller if you like, but don't go too small -- your're runnig a full cluster on your box. Obviously, make sure you can reach this box via TCP (arbitrary ports) using any mechanism (via VPN, ssh tunneling, etc.). If you're up for it, get _two_ such boxes up: one for running the insecure cluster and one for the secure cluster. (You can't run both clusters as the same time as currently written). If you're only running one cluster, I suggest you run the insecure one, and follow along the contents of the slide and gradually secure it.
 
 Setup and configure docker (https://docs.docker.com/engine/getstarted/) and docker compose (https://docs.docker.com/compose/install/)
 
@@ -12,7 +12,7 @@ Then, run the insecure cluster with:
 
 ./run-insecure-cluster.sh
 
-This will start up the cluster using docker compose. Hit Ctrl-C to terminate the cluster.
+This will start up the cluster using docker compose. Hit Ctrl-C to terminate the cluster. Keep this running in the foreground (to monitor progress and spot errors). The first time you run this, it will take a few minutes to pull the images, this is a one-time step. Then, in a couple of minutes or so, the cluster should be up.
 
 
 While the cluster is running, you can:

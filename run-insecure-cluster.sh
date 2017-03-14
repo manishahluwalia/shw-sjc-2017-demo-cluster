@@ -6,7 +6,8 @@ PROJECT=insec
 CLUSTER_FILE=insecure-cluster.yml
 
 sudo rm -fr ./mysqld-data-dir
-sudo cp -a ./$PROJECT-mysqld-data-dir ./mysqld-data-dir
+mkdir ./mysqld-data-dir
+tar xzf $PROJECT-mysqld-data-dir.tgz -C mysqld-data-dir
 
 docker-compose -p $PROJECT -f $CLUSTER_FILE up
 exit
